@@ -23,10 +23,10 @@ postupashki-hackathon/
 ├── README.md
 ├── data/
 │   ├── base.xlsx
-│   ├── posts.csv
-│   ├── post_labels_manual.csv
 │   ├── history_analysis_beta.xlsx
-│   └── mock_purchases.csv
+│   ├── mock_purchases.csv
+│   ├── post_labels_manual.csv
+│   └── posts.csv
 ├── src/
 │   ├── romi.py
 │   ├── collect_posts.py
@@ -37,20 +37,18 @@ postupashki-hackathon/
 │       ├── 01_sales_layer.ipynb
 │       └── 02_attribution.ipynb
 ├── outputs/
-│   ├── orders.csv
-│   ├── order_items.csv
-│   ├── daily.csv
-│   ├── sales_daily.png
+│   ├── results_romi.md
 │   ├── revenue_daily.png
+│   ├── sales_daily.png
 │   ├── subscribers_daily.png
-│   ├── romi_demo.csv
-│   └── romi_by_channel.csv
+│   ├── romi_by_channel.csv
+│   └── romi_demo.csv
 └── docs/
     ├── architecture.md
-    ├── spec.md
-    ├── tracking.md
     ├── history.md
-    └── pdf_plan.md
+    ├── pdf_plan.md
+    ├── spec.md
+    └── tracking.md
 ```
 
 > Файлы `src/placements.csv`, `src/mock_touches.csv`, `data/mock_purchases.csv`, `outputs/romi_demo.csv`, `outputs/romi_by_channel.csv` создаются скриптами. Они уже закоммичены для удобства просмотра — при необходимости воспроизводятся заново запуском команд ниже.
