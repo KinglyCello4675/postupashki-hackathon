@@ -16,50 +16,25 @@ MVP системы измерения маркетинга для проекта
 
 Схема: реклама → placement_id → пользователь → покупка → выручка → атрибуция → ROMI → решение по бюджету.
 
-## Структура репозитория
+## Что где лежит
 
-```
-postupashki-hackathon/
-├── README.md
-├── data/
-│   ├── base.xlsx
-│   ├── history_analysis_beta.xlsx
-│   ├── mock_purchases.csv
-│   ├── post_labels_manual.csv
-│   └── posts.csv
-├── src/
-│   ├── romi.py
-│   ├── collect_posts.py
-│   ├── generate_test_dataset.py
-│   ├── placements.csv
-│   ├── mock_touches.csv
-│   └── notebooks/
-│       ├── 01_sales_layer.ipynb
-│       ├── 02_attribution.ipynb
-│       └── 03_demand_drivers.ipynb
-├── outputs/
-│   ├── daily.csv
-│   ├── orders.csv
-│   ├── order_items.csv
-│   ├── spike_summary.csv
-│   ├── revenue_by_line_weekly.csv
-│   ├── romi_demo.csv
-│   ├── romi_by_channel.csv
-│   ├── romi_linear.csv
-│   ├── romi_linear_by_channel.csv
-│   ├── results_romi.md
-│   ├── buyers_daily and median_price.png
-│   ├── sales_daily.png
-│   └── subscribers_daily.png
-└── docs/
-    ├── architecture.md
-    ├── history.md
-    ├── pdf_plan.md
-    ├── spec.md
-    └── tracking.md
-```
+**`data/`** — исходные данные и результаты парсинга:
+- `base.xlsx` — реальные продажи от организаторов
+- `posts.csv` — реальные посты из публичного канала
+- `post_labels_manual.csv` — ручная проверка ИИ-разметки
+- `history_analysis_beta.xlsx` — промежуточная аналитика Максима
+- `mock_purchases.csv` — синтетика: demo-покупки
 
-> Файлы `src/placements.csv`, `src/mock_touches.csv`, `data/mock_purchases.csv`, `outputs/romi_*.csv`, `outputs/orders.csv`, `outputs/order_items.csv`, `outputs/daily.csv`, `outputs/spike_summary.csv`, `outputs/revenue_by_line_weekly.csv` создаются скриптами. Они закоммичены для удобства просмотра — воспроизводятся запуском команд ниже.
+**`src/`** — код:
+- `romi.py` — калькулятор ROMI (MVP)
+- `collect_posts.py` — сбор постов через t.me/s/
+- `generate_test_dataset.py` — генератор demo-данных
+- `placements.csv`, `mock_touches.csv` — синтетика для демонстрации
+- `notebooks/` — три ноутбука: EDA продаж, атрибуция, что двигает спрос
+
+**`outputs/`** — результаты работы кода: графики, CSV, ROMI по размещениям и каналам.
+
+**`docs/`** — документация: итоговый PDF, презентация, спецификация атрибуции, выводы исторического анализа, схема архитектуры.
 
 ## Данные: что реальное, что синтетика
 
