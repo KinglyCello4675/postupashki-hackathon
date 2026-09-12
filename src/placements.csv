@@ -1,0 +1,11 @@
+placement_id,channel,publication_time,cost,creative_id,creative_type
+p001,@study_a,2026-07-01 12:00:00,40000,cr_01,native
+p002,@study_b,2026-07-01 12:00:00,55000,cr_02,native
+p003,@study_c,2026-07-01 12:00:00,70000,cr_03,native
+p004,@study_d,2026-07-01 12:00:00,35000,cr_01,native
+p005,@study_e,2026-07-01 12:00:00,60000,cr_02,native
+p006,@study_a,2026-07-01 12:00:00,65000,cr_03,native
+p007,@study_b,2026-07-01 12:00:00,45000,cr_01,native
+p008,@study_c,2026-07-01 12:00:00,58000,cr_02,native
+p009,@study_d,2026-07-01 12:00:00,72000,cr_03,native
+p010,@study_e,2026-07-01 12:00:00,0,cr_01,native
