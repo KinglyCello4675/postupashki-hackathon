@@ -38,7 +38,7 @@ postupashki-hackathon/
 │       └── 02_attribution.ipynb
 ├── outputs/
 │   ├── results_romi.md
-│   ├── revenue_daily.png
+│   ├── buyers_daily and median_price.png
 │   ├── sales_daily.png
 │   ├── subscribers_daily.png
 │   ├── romi_by_channel.csv
