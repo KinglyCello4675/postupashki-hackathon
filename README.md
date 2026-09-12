@@ -35,15 +35,22 @@ postupashki-hackathon/
 │   ├── mock_touches.csv
 │   └── notebooks/
 │       ├── 01_sales_layer.ipynb
-│       └── 02_attribution.ipynb
+│       ├── 02_attribution.ipynb
 │       └── 03_demand_drivers.ipynb
 ├── outputs/
+│   ├── daily.csv
+│   ├── orders.csv
+│   ├── order_items.csv
+│   ├── spike_summary.csv
+│   ├── revenue_by_line_weekly.csv
+│   ├── romi_demo.csv
+│   ├── romi_by_channel.csv
+│   ├── romi_linear.csv
+│   ├── romi_linear_by_channel.csv
 │   ├── results_romi.md
 │   ├── buyers_daily and median_price.png
 │   ├── sales_daily.png
-│   ├── subscribers_daily.png
-│   ├── romi_by_channel.csv
-│   └── romi_demo.csv
+│   └── subscribers_daily.png
 └── docs/
     ├── architecture.md
     ├── history.md
@@ -52,7 +59,7 @@ postupashki-hackathon/
     └── tracking.md
 ```
 
-> Файлы `src/placements.csv`, `src/mock_touches.csv`, `data/mock_purchases.csv`, `outputs/romi_demo.csv`, `outputs/romi_by_channel.csv` создаются скриптами. Они уже закоммичены для удобства просмотра — при необходимости воспроизводятся заново запуском команд ниже.
+> Файлы `src/placements.csv`, `src/mock_touches.csv`, `data/mock_purchases.csv`, `outputs/romi_*.csv`, `outputs/orders.csv`, `outputs/order_items.csv`, `outputs/daily.csv`, `outputs/spike_summary.csv`, `outputs/revenue_by_line_weekly.csv` создаются скриптами. Они закоммичены для удобства просмотра — воспроизводятся запуском команд ниже.
 
 ## Данные: что реальное, что синтетика
 
@@ -68,8 +75,10 @@ postupashki-hackathon/
 pip install pandas openpyxl
 python src/generate_test_dataset.py
 python src/romi.py
+
 jupyter notebook src/notebooks/01_sales_layer.ipynb
 jupyter notebook src/notebooks/02_attribution.ipynb
+jupyter notebook src/notebooks/03_demand_drivers.ipynb
 ```
 
 Результаты сохраняются в `outputs/`: `romi_demo.csv` — ROMI по размещениям, `romi_by_channel.csv` — ROMI по каналам.
