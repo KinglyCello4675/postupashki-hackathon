@@ -3,10 +3,13 @@
 ## Что было проверено
 
 - 795 строк продаж из `data/base.xlsx`;
-- 500 demo-покупок и 153 demo-касания;
+- генерация 10 demo-размещений в `src/placements.csv`;
+- генерация 500 demo-покупок в `data/mock_purchases.csv`;
+- генерация 153 demo-касания для 133 пользователей в `src/mock_touches.csv`;
 - модели `last_touch` и `linear`;
 - окно атрибуции 14 дней;
-- сохранение общей выручки без потерь и дублей.
+- сохранение общей выручки без потерь и дублей;
+- удаление временных файлов после пробного запуска.
 
 ## Основной результат
 
@@ -20,9 +23,19 @@
 
 Последний запуск на `base.xlsx`:
 
+- обработано `795` покупок в режиме `last_touch`;
 - общая выручка: `5 904 671,67 ₽`;
-- organic revenue: `4 699 135 ₽`;
-- ROMI размещений: примерно `94–298%`.
+- attributed revenue по платным размещениям: `1 205 536,67 ₽`;
+- organic revenue: `4 699 135 ₽` (`79,58%` общей выручки);
+- общий cost размещений: `500 000 ₽`;
+- ROMI платных размещений: `93,81–298,13%`;
+- размещение `p010` с `cost = 0` исключено из ROMI.
+
+Отдельная проверка demo-набора:
+
+- обработано `500` покупок в режиме `linear`;
+- общая demo-выручка сохранена без потерь и дублей;
+- значение `-1` в итоговом ROMI отсутствует.
 
 ## Файлы
 
@@ -30,29 +43,60 @@
 |---|---|
 | `romi_demo.csv` | ROMI по отдельным размещениям |
 | `romi_by_channel.csv` | Агрегация выручки, затрат и ROMI по каналам |
-| `romi_linear_base.csv` | Результат linear attribution на `base.xlsx` |
-| `romi_linear_base_by_channel.csv` | Linear attribution по каналам |
-| `romi_demo_mock.csv` | Результат на 500 demo-покупках |
-| `romi_demo_mock_by_channel.csv` | Demo-результат по каналам |
+| `romi_linear.csv` | Результат linear attribution на 500 demo-покупках |
+| `romi_linear_by_channel.csv` | Linear attribution по demo-каналам |
+| `src/generate_test_dataset.py` | Генератор placements, touches и mock-покупок |
+| `src/placements.csv` | Сгенерированный реестр из 10 demo-размещений |
+| `src/mock_touches.csv` | Сгенерированные 153 demo-касания для 133 пользователей |
+| `data/mock_purchases.csv` | Сгенерированные 500 demo-покупок |
+
+CSV-файлы demo и результаты в `outputs` создаются при запуске и могут быть удалены после проверки.
 
 ## Запуск
 
 Из корня проекта:
 
 ```powershell
-python generate_test_dataset.py
-python src\romi.py
+cd C:\Users\Asus\Desktop\postupashki-hackathon
+python -m py_compile src\romi.py src\generate_test_dataset.py
+python src\generate_test_dataset.py
+python src\romi.py --purchases data\base.xlsx
 ```
 
 Для linear attribution:
 
 ```powershell
 python src\romi.py --model linear `
-  --output outputs\romi_linear_base.csv `
-  --channel-output outputs\romi_linear_base_by_channel.csv
+  --purchases data\mock_purchases.csv `
+  --output outputs\romi_linear.csv `
+  --channel-output outputs\romi_linear_by_channel.csv
 ```
 
-Данные синтетические и предназначены для демонстрации работы атрибуции. Они не являются доказательством исторического ROMI.
+Для запуска на 500 demo-покупках:
+
+```powershell
+python src\romi.py `
+  --purchases data\mock_purchases.csv `
+  --output outputs\romi_demo_mock.csv `
+  --channel-output outputs\romi_demo_mock_by_channel.csv
+```
+
+Данные касаний и размещений синтетические и предназначены для демонстрации работы атрибуции. Они не являются доказательством исторического ROMI.
+
+После пробного запуска удалить созданные файлы можно так:
+
+```powershell
+Remove-Item `
+  src\placements.csv, `
+  src\mock_touches.csv, `
+  data\mock_purchases.csv, `
+  outputs\romi_demo.csv, `
+  outputs\romi_by_channel.csv, `
+  outputs\romi_linear.csv, `
+  outputs\romi_linear_by_channel.csv, `
+  src\__pycache__ `
+  -Recurse -Force -ErrorAction SilentlyContinue
+```
 
 ## Функции `src/romi.py`
 

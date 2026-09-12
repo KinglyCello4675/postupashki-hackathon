@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data"
 SRC_DIR = ROOT / "src"
 DEMO_PURCHASE_COUNT = 500
