@@ -54,10 +54,13 @@ CSV-файлы demo и результаты в `outputs` создаются пр
 
 ## Запуск
 
-Из корня проекта:
+Все команды нужно выполнять из корня проекта — каталога, где находятся папки
+`src`, `data` и `outputs`. Путь к этому каталогу у каждого участника будет
+своим, поэтому абсолютный путь здесь не фиксируется.
 
 ```powershell
-cd C:\Users\Asus\Desktop\postupashki-hackathon
+# Перейдите в корень проекта любым удобным способом.
+
 python -m py_compile src\romi.py src\generate_test_dataset.py
 python src\generate_test_dataset.py
 python src\romi.py --purchases data\base.xlsx
@@ -77,8 +80,8 @@ python src\romi.py --model linear `
 ```powershell
 python src\romi.py `
   --purchases data\mock_purchases.csv `
-  --output outputs\romi_demo_mock.csv `
-  --channel-output outputs\romi_demo_mock_by_channel.csv
+  --output outputs\romi_mock.csv `
+  --channel-output outputs\romi_mock_by_channel.csv
 ```
 
 Данные касаний и размещений синтетические и предназначены для демонстрации работы атрибуции. Они не являются доказательством исторического ROMI.
@@ -87,14 +90,16 @@ python src\romi.py `
 
 ```powershell
 Remove-Item `
-  src\placements.csv, `
-  src\mock_touches.csv, `
-  data\mock_purchases.csv, `
-  outputs\romi_demo.csv, `
-  outputs\romi_by_channel.csv, `
-  outputs\romi_linear.csv, `
-  outputs\romi_linear_by_channel.csv, `
-  src\__pycache__ `
+  .\src\placements.csv, `
+  .\src\mock_touches.csv, `
+  .\data\mock_purchases.csv, `
+  .\outputs\romi_demo.csv, `
+  .\outputs\romi_by_channel.csv, `
+  .\outputs\romi_linear.csv, `
+  .\outputs\romi_linear_by_channel.csv, `
+  .\outputs\romi_mock.csv, `
+  .\outputs\romi_mock_by_channel.csv, `
+  .\src\__pycache__ `
   -Recurse -Force -ErrorAction SilentlyContinue
 ```
 
