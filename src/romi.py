@@ -37,7 +37,18 @@ def read_purchases(path: Path) -> pd.DataFrame:
         data.insert(0, "order_id", [f"order_{index + 1:04d}" for index in range(len(data))])
         data["is_repeat"] = False
         return data
-    return read_csv(path)
+    data = read_csv(path)
+    if "is_repeat" in data.columns:
+        data["is_repeat"] = (
+            data["is_repeat"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .isin({"true", "1", "yes", "да"})
+        )
+    else:
+        data["is_repeat"] = False
+    return data
 
 
 def _normalize_identifier(value: object) -> str:
@@ -227,12 +238,17 @@ def calculate_romi(
     validate_inputs(placements, touches, purchases)
     attributed = attribute_purchases(placements, touches, purchases, window_days, model)
 
-    revenue = attributed.groupby("placement_id", as_index=False)["attributed_revenue"].sum()
+    attributed_for_romi = attributed[~attributed["is_repeat"]].copy()
+    attributed_repeat = attributed[attributed["is_repeat"] == True]
+
+    revenue = attributed_for_romi.groupby(
+        "placement_id", as_index=False
+    )["attributed_revenue"].sum()
     placement_result = placements.merge(revenue, on="placement_id", how="left")
     placement_result["attributed_revenue"] = placement_result["attributed_revenue"].fillna(0)
     placement_result = placement_result.rename(columns={"attributed_revenue": "revenue"})
     placement_result = placement_result[["placement_id", "channel", "cost", "revenue"]]
-    organic_revenue = attributed.loc[
+    organic_revenue = attributed_for_romi.loc[
         attributed["placement_id"].eq("organic"), "attributed_revenue"
     ].sum()
     if organic_revenue:
@@ -245,13 +261,29 @@ def calculate_romi(
             ],
             ignore_index=True,
         )
+    repeat_revenue = attributed_repeat["attributed_revenue"].sum()
+    if repeat_revenue:
+        placement_result = pd.concat(
+            [
+                placement_result,
+                pd.DataFrame(
+                    [
+                        {
+                            "placement_id": "repeat_customer",
+                            "channel": "repeat_customer",
+                            "cost": 0,
+                            "revenue": repeat_revenue,
+                        }
+                    ]
+                ),
+            ],
+            ignore_index=True,
+        )
     placement_result = _add_romi(placement_result).sort_values(
         "romi", ascending=False, na_position="last", ignore_index=True
     )
 
-    channel_revenue = (
-        placement_result.groupby("channel", as_index=False)["revenue"].sum()
-    )
+    channel_revenue = placement_result.groupby("channel", as_index=False)["revenue"].sum()
     channel_cost = placements.groupby("channel", as_index=False)["cost"].sum(min_count=1)
     channel_result = channel_cost.merge(channel_revenue, on="channel", how="outer")
     channel_result["cost"] = channel_result["cost"].fillna(0)
@@ -260,6 +292,16 @@ def calculate_romi(
     channel_result = channel_result.sort_values(
         "romi", ascending=False, na_position="last", ignore_index=True
     )
+    total_purchase_revenue = purchases["amount"].sum()
+    total_attributed = attributed["attributed_revenue"].sum()
+    total_output_revenue = placement_result["revenue"].sum()
+    if not (
+        abs(total_purchase_revenue - total_attributed) < 1e-6
+        and abs(total_attributed - total_output_revenue) < 1e-6
+    ):
+        raise AssertionError(
+            "Attributed and output revenue do not match total purchase revenue"
+        )
     return placement_result, channel_result, attributed
 
 
