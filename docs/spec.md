@@ -21,7 +21,7 @@
 
 ## 1. Сущности и связи
 
-**Для каждого события фиксируем:**
+**Для каждого события фиксируем:**  
 `кто → что сделал → когда → откуда пришёл → к какой рекламной активности относится`
 
 | Сущность  | Ключевые поля                                               | Источник                  |
@@ -55,23 +55,23 @@
 2. **Реестр размещений** — таблица placements.csv, заполняется вручную при закупке рекламы. Поля: channel, campaign, creative, publication_time, cost. Это основной источник данных для ROMI: без cost и publication_time ROMI не считается.
 3. **base.xlsx** — реальный обезличенный слой продаж от организаторов: 795 строк, 606 покупателей, 18 продуктов, 04.08–10.09.2026. Поля: student_id, amount, course, timestamp. Это единственный источник реальных payment.
 
-**Бот / менеджер** — два канала фиксации touch и lead:
+**Бот / менеджер** — два канала фиксации touch и lead:  
 1. бот — по deep link `t.me/<bot>?start=<placement_id>`;
 2. менеджер — вручную фиксирует source, если deep link не сработал.
 
-**Связи:**
-- **Channel 1→N Campaign 1→N Placement**
-  Channel 1→N Campaign — один канал может быть площадкой для нескольких кампаний.
-  Campaign 1→N Placement — одна кампания включает несколько размещений.
-- **Placement 1→N Touch N→1 User**
-  Placement 1→N Touch — одно размещение даёт много касаний.
-  Touch N→1 User — каждое касание принадлежит одному пользователю.
-- **User 1→N Lead 1→N Payment N→1 Order**
-  User 1→N Lead — пользователь может начать несколько диалогов с менеджером.
-  Lead 1→N Payment — из одного диалога может выйти несколько оплат.
-  Payment N→1 Order — оплата принадлежит одному заказу.
-- **Order N→N Course**
-  Order N→N Course — в заказе может быть несколько курсов, курс может быть в разных заказах.
+**Связи:**  
+- **Channel 1→N Campaign 1→N Placement**  
+  Channel 1→N Campaign — один канал может быть площадкой для нескольких кампаний.  
+  Campaign 1→N Placement — одна кампания включает несколько размещений.  
+- **Placement 1→N Touch N→1 User**  
+  Placement 1→N Touch — одно размещение даёт много касаний.  
+  Touch N→1 User — каждое касание принадлежит одному пользователю.  
+- **User 1→N Lead 1→N Payment N→1 Order**  
+  User 1→N Lead — пользователь может начать несколько диалогов с менеджером.  
+  Lead 1→N Payment — из одного диалога может выйти несколько оплат.  
+  Payment N→1 Order — оплата принадлежит одному заказу.  
+- **Order N→N Course**  
+  Order N→N Course — в заказе может быть несколько курсов, курс может быть в разных заказах.  
 
 ---
 
@@ -79,20 +79,20 @@
 
 ### Этап 1. Реклама → переход/просмотр
 
-**Что логируем:** публикацию поста/размещения.
+**Что логируем:** публикацию поста/размещения.  
 
 **Как:**
 - `collect_posts.py` собирает посты из своих каналов через `t.me/s/<channel>`.
 - Для внешних размещений — реестр `placements.csv` заполняется вручную при закупке.
 - Каждому placement присваивается `placement_id`, каждому creative — `creative_id`.
 
-**Поля:** `channel, placement_id, creative_id, publication_time, cost`
+**Поля:** `channel, placement_id, creative_id, publication_time, cost`  
 
 ### Этап 2. Переход/просмотр → основной канал
 
-**Что логируем:** факт, что пользователь пришёл из рекламы.
+**Что логируем:** факт, что пользователь пришёл из рекламы.  
 
-**Как — два механизма:**
+**Как — два механизма:**  
 
 1. **Deep link в бота менеджера** (основной)
    - Ссылка вида `t.me/<manager_bot>?start=<placement_id>`
@@ -102,7 +102,7 @@
    - Ссылка с UTM: `?utm_source=placement&utm_campaign=<placement_id>`
    - На сайте — форма «откуда вы о нас узнали» + кнопка в бота менеджера с тем же `start_param`.
 
-**Поля:** `touch_id, user_id, placement_id, source, touch_time`
+**Поля:** `touch_id, user_id, placement_id, source, touch_time`  
 
 ### Этап 3. Основной канал → менеджер
 
@@ -116,33 +116,33 @@
 
 ### Этап 4. Менеджер → оплата
 
-**Что логируем:** уже логируется в `base.xlsx` (payment).
+**Что логируем:** уже логируется в `base.xlsx` (payment).  
 
-**Как:** при оплате менеджер фиксирует `user_id`.
-`user_id` = хеш Telegram username — как в исходных данных.
+**Как:** при оплате менеджер фиксирует `user_id`.   
+`user_id` = хеш Telegram username — как в исходных данных.  
 
-**Поля:** `payment_id, order_id, user_id, amount, course, timestamp`
+**Поля:** `payment_id, order_id, user_id, amount, course, timestamp`  
 
-### Этап 5. Оплата → курс
+### Этап 5. Оплата → курс  
 
-Уже есть в `base.xlsx`. Доступ выдаётся после оплаты.
+Уже есть в `base.xlsx`. Доступ выдаётся после оплаты.  
 
 ---
 
 ## 3. User stitching
 
-**Цель:** связать рекламный контакт → Telegram-пользователя → лида → оплату.
+**Цель:** связать рекламный контакт → Telegram-пользователя → лида → оплату.  
 
-**Основной механизм (deterministic):**
-`Канал А → tracking link (t.me/bot?start=<placement_id>) → Telegram user (start_param + user_id) → менеджер (source из start_param или от менеджера) → payment (user_id совпадает)`
+**Основной механизм (deterministic):**  
+`Канал А → tracking link (t.me/bot?start=<placement_id>) → Telegram user (start_param + user_id) → менеджер (source из start_param или от менеджера) → payment (user_id совпадает)`  
 
-**Ключевой идентификатор:** `user_id` = хеш Telegram username. Используется во всех таблицах. Персональные данные не храним.
+**Ключевой идентификатор:** `user_id` = хеш Telegram username. Используется во всех таблицах. Персональные данные не храним.  
 
-**Если пользователь читал канал несколько дней и имел несколько касаний:**
-- Все touch сохраняются с `touch_time`.
-- При оплате берём все касания в окне 14 дней (см. раздел 4).
+**Если пользователь читал канал несколько дней и имел несколько касаний:**  
+- Все touch сохраняются с `touch_time`.  
+- При оплате берём все касания в окне 14 дней (см. раздел 4).  
 
-**Если deterministic stitching невозможен:**
+**Если deterministic stitching невозможен:**  
 - Fallback 1: **self-reported source** — менеджер спрашивает «Откуда вы о нас узнали?» и фиксирует.
 - Fallback 2: **probabilistic matching** — сопоставление по времени (касание ≤ 14 дней до оплаты) + канал, если других данных нет.
 - Fallback 3: если ничего не сработало → `organic`.
@@ -168,10 +168,10 @@
 - Deep link: `t.me/<bot>?start=<placement_id>`
 - UTM на сайт: `?utm_source=placement&utm_campaign=<placement_id>`
 
-**Обязательные поля в таблице placements:**
-`placement_id, channel, campaign, creative_id, publication_time, cost`
+**Обязательные поля в таблице placements:**  
+`placement_id, channel, campaign, creative_id, publication_time, cost`  
 
-Без `publication_time` и `cost` ROMI не считается.
+Без `publication_time` и `cost` ROMI не считается.  
 
 ---
 
